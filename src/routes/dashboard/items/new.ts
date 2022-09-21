@@ -5,8 +5,7 @@ import { createImageUrl } from '$services/utils/image-url';
 
 export const post: RequestHandler = async ({ request, locals }) => {
 	const data = await request.json();
-	
-	
+
 	const id = await createItem({
 		name: data.name,
 		description: data.description,
@@ -27,5 +26,5 @@ export const post: RequestHandler = async ({ request, locals }) => {
 		body: {
 			id
 		}
-	}
+	};
 };

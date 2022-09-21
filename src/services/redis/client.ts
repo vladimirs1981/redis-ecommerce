@@ -1,9 +1,6 @@
 import { createClient, defineScript } from 'redis';
-import { 
-    itemsKey,
-    itemsByViewsKey,
-    itemsViewsKey
- } from '$services/keys'
+import { createIndexes } from './create-indexes';
+import { itemsKey, itemsByViewsKey, itemsViewsKey } from '$services/keys';
 
 const client = createClient({
 	socket: {
@@ -18,13 +15,13 @@ const client = createClient({
 			return redis.call('SET', KEYS[1], 1 + tonumber(ARGV[1]))
 			`,
 			transformArguments(key: string, value: number) {
-				return [key, value.toString()]
+				return [key, value.toString()];
 				// ['books:count', '5']
 				// EVALSHA <ID> 1 'books:count' '5'
 			},
 			transformReply(reply: any) {
 				return reply;
-			},
+			}
 		}),
 		incrementView: defineScript({
 			NUMBER_OF_KEYS: 3,
@@ -43,20 +40,14 @@ const client = createClient({
 			end
 			`,
 			transformArguments(itemId: string, userId: string) {
-				return [
-					itemsViewsKey(itemId), 
-					itemsKey(itemId), 
-					itemsByViewsKey(), 
-					itemId, 
-					userId
-				];
+				return [itemsViewsKey(itemId), itemsKey(itemId), itemsByViewsKey(), itemId, userId];
 			},
 			transformReply() {}
 		}),
 		unlock: defineScript({
 			NUMBER_OF_KEYS: 1,
 			transformArguments(key: string, token: string) {
-				return [key, token]
+				return [key, token];
 			},
 			transformReply(reply: any) {
 				return reply;
@@ -66,11 +57,19 @@ const client = createClient({
 					return redis.call('DEL', KEYS[1])
 				end
 			`
-		}),
+		})
 	}
 });
 
 client.on('error', (err) => console.error(err));
 client.connect();
+
+client.on('connect', async () => {
+	try {
+		await createIndexes();
+	} catch (error) {
+		console.error(error);
+	}
+});
 
 export { client };

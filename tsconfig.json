@@ -1,9 +1,9 @@
 {
 	"ts-node": {
-    "compilerOptions": {
-      "module": "commonjs"
-    }
-  },
+		"compilerOptions": {
+			"module": "commonjs"
+		}
+	},
 	"compilerOptions": {
 		"moduleResolution": "node",
 		"module": "es2020",

@@ -21,7 +21,7 @@ export const withLock = async (key: string, cb: (client: Client, signal: any) =>
 			NX: true,
 			PX: timeoutMs
 		});
-		if(!acquired) {
+		if (!acquired) {
 			// ELSE bries pause (retryDelayMs) and then retry
 			await pause(retryDelayMs);
 			continue;
@@ -31,18 +31,16 @@ export const withLock = async (key: string, cb: (client: Client, signal: any) =>
 			const signal = { expired: false };
 			setTimeout(() => {
 				signal.expired = true;
-			}, timeoutMs)
-			const proxiedClient = buildClientProxy(timeoutMs)
+			}, timeoutMs);
+			const proxiedClient = buildClientProxy(timeoutMs);
 			const result = await cb(proxiedClient, signal);
 			return result;
 		} finally {
-
 			// Unset the locked key
 			// await client.del(lockKey);
-			await client.unlock(lockKey, token)
+			await client.unlock(lockKey, token);
 		}
 	}
-
 };
 
 const buildClientProxy = (timeoutMs: number) => {
@@ -50,14 +48,14 @@ const buildClientProxy = (timeoutMs: number) => {
 
 	const handler = {
 		get(target: Client, prop: keyof Client) {
-			if(Date.now() >= startTime + timeoutMs) {
-				throw new Error('Lock has expired.')
+			if (Date.now() >= startTime + timeoutMs) {
+				throw new Error('Lock has expired.');
 			}
 
 			const value = target[prop];
 			return typeof value === 'function' ? value.bind(target) : value;
 		}
-	}
+	};
 
 	return new Proxy(client, handler) as Client;
 };

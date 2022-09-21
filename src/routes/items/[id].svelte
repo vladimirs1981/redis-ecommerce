@@ -90,11 +90,7 @@
 				<div class="flex justify-between">
 					<Stat label="High Bid" value={'$' + item.price.toFixed(2)} />
 					<Stat bg="bg-amber-500" label="# Bids" value={item.bids} />
-					<Stat
-						bg="bg-violet-500"
-						label="Ending In"
-						value={endingAt}
-					/>
+					<Stat bg="bg-violet-500" label="Ending In" value={endingAt} />
 				</div>
 
 				{#if userHasHighBid}
